@@ -392,7 +392,7 @@ class ReportActionCompose extends React.Component {
         }
 
         const reportParticipants = lodashGet(this.props.report, 'participants', []);
-        const hasMultipleParticipants = reportParticipants.length > 1;
+        const hasMultipleParticipants = _.filter(reportParticipants, email => this.props.myPersonalDetails.login !== email).length > 0;
         const hasExcludedIOUEmails = lodashIntersection(reportParticipants, CONST.EXPENSIFY_EMAILS).length > 0;
         const reportRecipient = this.props.personalDetails[reportParticipants[0]];
         const shouldShowReportRecipientLocalTime = ReportUtils.canShowReportRecipientLocalTime(this.props.personalDetails, this.props.report);
@@ -450,43 +450,43 @@ class ReportActionCompose extends React.Component {
                                                 animationOut="fadeOutDown"
                                                 menuItems={[
                                                     ...(!hasExcludedIOUEmails
-                                                        && Permissions.canUseIOU(this.props.betas) ? [
-                                                            hasMultipleParticipants
-                                                                ? {
-                                                                    icon: Expensicons.Receipt,
-                                                                    text: this.props.translate('iou.splitBill'),
-                                                                    onSelected: () => {
-                                                                        Navigation.navigate(
-                                                                            ROUTES.getIouSplitRoute(
-                                                                                this.props.reportID,
-                                                                            ),
-                                                                        );
-                                                                    },
-                                                                } : {
-                                                                    icon: Expensicons.MoneyCircle,
-                                                                    text: this.props.translate('iou.requestMoney'),
-                                                                    onSelected: () => {
-                                                                        Navigation.navigate(
-                                                                            ROUTES.getIouRequestRoute(
-                                                                                this.props.reportID,
-                                                                            ),
-                                                                        );
-                                                                    },
+                                                        && Permissions.canUseIOU(this.props.betas)
+                                                        && hasMultipleParticipants ? [
+                                                            {
+                                                                icon: Expensicons.Receipt,
+                                                                text: this.props.translate('iou.splitBill'),
+                                                                onSelected: () => {
+                                                                    Navigation.navigate(
+                                                                        ROUTES.getIouSplitRoute(
+                                                                            this.props.reportID,
+                                                                        ),
+                                                                    );
                                                                 },
-                                                        ] : []),
-                                                    ...(!hasExcludedIOUEmails && Permissions.canUseIOUSend(this.props.betas) && !hasMultipleParticipants ? [
-                                                        {
-                                                            icon: Expensicons.Send,
-                                                            text: this.props.translate('iou.sendMoney'),
-                                                            onSelected: () => {
-                                                                Navigation.navigate(
-                                                                    ROUTES.getIOUSendRoute(
-                                                                        this.props.reportID,
-                                                                    ),
-                                                                );
                                                             },
-                                                        },
-                                                    ] : []),
+                                                            {
+                                                                icon: Expensicons.MoneyCircle,
+                                                                text: this.props.translate('iou.requestMoney'),
+                                                                onSelected: () => {
+                                                                    Navigation.navigate(
+                                                                        ROUTES.getIouRequestRoute(
+                                                                            this.props.reportID,
+                                                                        ),
+                                                                    );
+                                                                },
+                                                            },
+                                                            {
+                                                                icon: Expensicons.Send,
+                                                                text: this.props.translate('iou.sendMoney'),
+                                                                onSelected: () => {
+                                                                    Navigation.navigate(
+                                                                        ROUTES.getIOUSendRoute(
+                                                                            this.props.reportID,
+                                                                        ),
+                                                                    );
+                                                                },
+                                                            },
+                                                        ] : []
+                                                    ),
                                                     {
                                                         icon: Expensicons.Paperclip,
                                                         text: this.props.translate('reportActionCompose.addAttachment'),
@@ -628,6 +628,9 @@ export default compose(
         },
         blockedFromConcierge: {
             key: ONYXKEYS.NVP_BLOCKED_FROM_CONCIERGE,
+        },
+        myPersonalDetails: {
+            key: ONYXKEYS.MY_PERSONAL_DETAILS,
         },
     }),
 )(ReportActionCompose);
