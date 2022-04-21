@@ -74,17 +74,13 @@ NetworkEvents.onResponse((queuedRequest, response) => {
         // of the new response created by handleExpiredAuthToken.
         const shouldRetry = lodashGet(queuedRequest, 'data.shouldRetry');
         if (!shouldRetry || unableToReauthenticate) {
-            // Check to see if queuedRequest has a resolve method as this could be a persisted request which had it's promise handling logic stripped
-            // from it when persisted to storage
-            if (queuedRequest.resolve) {
-                queuedRequest.resolve(response);
-            }
+            queuedRequest.resolve(response);
             return;
         }
 
         handleExpiredAuthToken(queuedRequest.command, queuedRequest.data, queuedRequest.type)
-            .then(queuedRequest.resolve || (() => Promise.resolve()))
-            .catch(queuedRequest.reject || (() => Promise.resolve()));
+            .then(queuedRequest.resolve)
+            .catch(queuedRequest.reject);
         return;
     }
 
