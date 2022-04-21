@@ -24,19 +24,6 @@ function process() {
     }
 
     const task = _.reduce(persistedRequests, (previousRequest, request) => previousRequest.then(() => processRequest(request)
-        .then((response) => {
-            if (response.jsonCode !== CONST.JSON_CODE.NOT_AUTHENTICATED) {
-                return response;
-            }
-
-            // We need to reauthenticate so we will send this request to API
-            return new Promise((resolve, reject) => {
-                const clonedRequest = _.clone(request);
-                clonedRequest.resolve = resolve;
-                clonedRequest.reject = reject;
-                NetworkEvents.triggerResponse(clonedRequest, response);
-            });
-        })
         .catch((error) => {
             const retryCount = PersistedRequests.incrementRetries(request);
             NetworkEvents.getLogger().info('Persisted request failed', false, {retryCount, command: request.command, error: error.message});
