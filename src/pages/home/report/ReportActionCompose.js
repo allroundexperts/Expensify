@@ -450,8 +450,8 @@ class ReportActionCompose extends React.Component {
                                                 animationOut="fadeOutDown"
                                                 menuItems={[
                                                     ...(!hasExcludedIOUEmails
-                                                        && Permissions.canUseIOU(this.props.betas) && [
-                                                        ...(reportParticipantsOtherThanLoggedInUser.length === 1 && [
+                                                        && Permissions.canUseIOU(this.props.betas)
+                                                        && reportParticipantsOtherThanLoggedInUser.length === 1 ? [
                                                             {
                                                                 icon: Expensicons.MoneyCircle,
                                                                 text: this.props.translate('iou.requestMoney'),
@@ -474,8 +474,10 @@ class ReportActionCompose extends React.Component {
                                                                     );
                                                                 },
                                                             },
-                                                        ]),
-                                                        ...(reportParticipantsOtherThanLoggedInUser.length > 1 && [
+                                                        ] : []),
+                                                    ...(!hasExcludedIOUEmails
+                                                        && Permissions.canUseIOU(this.props.betas)
+                                                        && reportParticipantsOtherThanLoggedInUser.length > 1 ? [
                                                             {
                                                                 icon: Expensicons.Receipt,
                                                                 text: this.props.translate('iou.splitBill'),
@@ -487,8 +489,7 @@ class ReportActionCompose extends React.Component {
                                                                     );
                                                                 },
                                                             },
-                                                        ]),
-                                                    ]),
+                                                        ] : []),
                                                     {
                                                         icon: Expensicons.Paperclip,
                                                         text: this.props.translate('reportActionCompose.addAttachment'),
