@@ -392,7 +392,7 @@ class ReportActionCompose extends React.Component {
         }
 
         const reportParticipants = lodashGet(this.props.report, 'participants', []);
-        const hasMultipleParticipants = _.filter(reportParticipants, email => this.props.myPersonalDetails.login !== email).length > 0;
+        const reportParticipantsOtherThanLoggedInUser = _.filter(reportParticipants, email => this.props.myPersonalDetails.login !== email);
         const hasExcludedIOUEmails = lodashIntersection(reportParticipants, CONST.EXPENSIFY_EMAILS).length > 0;
         const reportRecipient = this.props.personalDetails[reportParticipants[0]];
         const shouldShowReportRecipientLocalTime = ReportUtils.canShowReportRecipientLocalTime(this.props.personalDetails, this.props.report);
@@ -450,19 +450,8 @@ class ReportActionCompose extends React.Component {
                                                 animationOut="fadeOutDown"
                                                 menuItems={[
                                                     ...(!hasExcludedIOUEmails
-                                                        && Permissions.canUseIOU(this.props.betas)
-                                                        && hasMultipleParticipants ? [
-                                                            {
-                                                                icon: Expensicons.Receipt,
-                                                                text: this.props.translate('iou.splitBill'),
-                                                                onSelected: () => {
-                                                                    Navigation.navigate(
-                                                                        ROUTES.getIouSplitRoute(
-                                                                            this.props.reportID,
-                                                                        ),
-                                                                    );
-                                                                },
-                                                            },
+                                                        && Permissions.canUseIOU(this.props.betas) && [
+                                                        ...(reportParticipantsOtherThanLoggedInUser.length === 1 && [
                                                             {
                                                                 icon: Expensicons.MoneyCircle,
                                                                 text: this.props.translate('iou.requestMoney'),
@@ -485,8 +474,21 @@ class ReportActionCompose extends React.Component {
                                                                     );
                                                                 },
                                                             },
-                                                        ] : []
-                                                    ),
+                                                        ]),
+                                                        ...(reportParticipantsOtherThanLoggedInUser.length > 1 && [
+                                                            {
+                                                                icon: Expensicons.Receipt,
+                                                                text: this.props.translate('iou.splitBill'),
+                                                                onSelected: () => {
+                                                                    Navigation.navigate(
+                                                                        ROUTES.getIouSplitRoute(
+                                                                            this.props.reportID,
+                                                                        ),
+                                                                    );
+                                                                },
+                                                            },
+                                                        ]),
+                                                    ]),
                                                     {
                                                         icon: Expensicons.Paperclip,
                                                         text: this.props.translate('reportActionCompose.addAttachment'),
