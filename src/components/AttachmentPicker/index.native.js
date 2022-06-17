@@ -12,15 +12,12 @@ import styles from '../../styles/styles';
 import Popover from '../Popover';
 import MenuItem from '../MenuItem';
 import * as Expensicons from '../Icon/Expensicons';
-import withWindowDimensions, {windowDimensionsPropTypes} from '../withWindowDimensions';
 import withLocalize, {withLocalizePropTypes} from '../withLocalize';
-import compose from '../../libs/compose';
 import launchCamera from './launchCamera';
 import CONST from '../../CONST';
 
 const propTypes = {
     ...basePropTypes,
-    ...windowDimensionsPropTypes,
     ...withLocalizePropTypes,
 };
 
@@ -308,7 +305,7 @@ class AttachmentPicker extends Component {
                     anchorPosition={styles.createMenuPosition}
                     onModalHide={this.onModalHide}
                 >
-                    <View style={this.props.isSmallScreenWidth ? {} : styles.createMenuContainer}>
+                    <View>
                         {
                              _.map(this.menuItemData, item => (
                                  <MenuItem
@@ -330,7 +327,4 @@ class AttachmentPicker extends Component {
 AttachmentPicker.propTypes = propTypes;
 AttachmentPicker.defaultProps = defaultProps;
 
-export default compose(
-    withWindowDimensions,
-    withLocalize,
-)(AttachmentPicker);
+export default withLocalize(AttachmentPicker);

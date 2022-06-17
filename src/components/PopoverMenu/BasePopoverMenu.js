@@ -38,7 +38,7 @@ class BasePopoverMenu extends PureComponent {
                 disableAnimation={this.props.disableAnimation}
                 fromSidebarMediumScreen={this.props.fromSidebarMediumScreen}
             >
-                <View style={this.props.isSmallScreenWidth ? {} : styles.createMenuContainer}>
+                <View style={!this.props.fromSidebarMediumScreen ? {} : styles.createMenuContainer}>
                     {!_.isEmpty(this.props.headerText) && (
                         <View style={styles.createMenuItem}>
                             <Text
