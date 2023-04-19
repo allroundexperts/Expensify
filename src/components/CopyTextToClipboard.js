@@ -62,12 +62,13 @@ class CopyTextToClipboard extends React.Component {
             >
                 <Text style={this.props.textStyles}>{this.props.text}</Text>
                 <Tooltip text={this.props.translate(`reportActionContextMenu.${this.state.showCheckmark ? 'copied' : 'copyToClipboard'}`)}>
-                    <View style={{paddingLeft: 4}}>
+                    <View>
                         <Pressable
                             focusable
                             onPress={this.copyToClipboard}
                             style={({hovered, pressed}) => ([
                                 StyleUtils.getButtonBackgroundColorStyle(getButtonState(hovered, pressed, this.state.showCheckmark), true),
+                                {marginLeft: 4},
                             ])}
                         >
                             {({hovered, pressed}) => (
