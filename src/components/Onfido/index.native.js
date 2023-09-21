@@ -3,6 +3,7 @@ import lodashGet from 'lodash/get';
 import React from 'react';
 import {Alert, Linking} from 'react-native';
 import {Onfido as OnfidoSDK, OnfidoCaptureType, OnfidoDocumentType, OnfidoCountryCode} from '@onfido/react-native-sdk';
+import {checkMultiple, PERMISSIONS} from 'react-native-permissions';
 import onfidoPropTypes from './onfidoPropTypes';
 import CONST from '../../CONST';
 import withLocalize, {withLocalizePropTypes} from '../withLocalize';
@@ -42,30 +43,61 @@ class Onfido extends React.Component {
                     return;
                 }
 
-                // Handle user camera permission on iOS and Android
-                if (_.contains([CONST.ONFIDO.ERROR.USER_CAMERA_PERMISSION, CONST.ONFIDO.ERROR.USER_CAMERA_DENINED, CONST.ONFIDO.ERROR.USER_CAMERA_CONSENT_DENIED], errorMessage)) {
-                    Alert.alert(
-                        this.props.translate('onfidoStep.cameraPermissionsNotGranted'),
-                        this.props.translate('onfidoStep.cameraRequestMessage'),
-                        [
-                            {
-                                text: this.props.translate('common.cancel'),
-                                onPress: () => this.props.onUserExit(),
-                            },
-                            {
-                                text: this.props.translate('common.settings'),
-                                onPress: () => {
-                                    this.props.onUserExit();
-                                    Linking.openSettings();
-                                },
-                            },
-                        ],
-                        {cancelable: false},
-                    );
-                    return;
-                }
+                if (errorMessage) {
+                    checkMultiple([PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.MICROPHONE]).then((data) => {
+                        const isCameraAllowed = data['ios.permission.CAMERA'] !== 'granted';
+                        const isMicAllowed = data['ios.permission.MICROPHONE'] !== 'granted';
 
-                this.props.onError(errorMessage);
+                        if (isCameraAllowed) {
+                            Alert.alert(
+                                this.props.translate('onfidoStep.cameraPermissionsNotGranted'),
+                                this.props.translate('onfidoStep.cameraRequestMessage'),
+                                [
+                                    {
+                                        text: this.props.translate('common.cancel'),
+                                        onPress: () => this.props.onUserExit(),
+                                    },
+                                    {
+                                        text: this.props.translate('common.settings'),
+                                        onPress: () => {
+                                            this.props.onUserExit();
+                                            Linking.openSettings();
+                                        },
+                                    },
+                                ],
+                                {cancelable: false},
+                            );
+                            return;
+                        }
+
+                        if (isMicAllowed) {
+                            Alert.alert(
+                                'Microphone',
+                                'Error for microphone',
+                                [
+                                    {
+                                        text: this.props.translate('common.cancel'),
+                                        onPress: () => this.props.onUserExit(),
+                                    },
+                                    {
+                                        text: this.props.translate('common.settings'),
+                                        onPress: () => {
+                                            this.props.onUserExit();
+                                            Linking.openSettings();
+                                        },
+                                    },
+                                ],
+                                {cancelable: false},
+                            );
+                            return;
+                        }
+
+                        this.props.onError(errorMessage);
+
+                    }).catch(() => {
+                        this.props.onError(errorMessage);
+                    });
+                }
             });
     }
 
